@@ -1,0 +1,87 @@
+abstract class GardenTree with CareMixin {
+  int id;           
+  int age;           
+  bool isFruiting;   
+
+  GardenTree(this.id, this.age, this.isFruiting);
+
+  void grow();               
+  void produceFruits();      
+  bool needsTransplant();    
+}
+
+mixin CareMixin {
+  void water() => print('Дерево полито ');
+  void fertilize() => print('Дерево підживлено ');
+}
+
+class TreeIdGenerator {
+  static int _counter = 0;
+  static int nextId() => ++_counter;
+}
+
+class AppleTree extends GardenTree {
+  AppleTree(int age, bool isFruiting)
+      : super(TreeIdGenerator.nextId(), age, isFruiting);
+
+  @override
+  void grow() => print('Яблуня #$id зростає ');
+
+  @override
+  void produceFruits() =>
+      print(isFruiting ? 'Яблуня #$id дала врожай!' : 'Ще не плодоносить');
+
+  @override
+  bool needsTransplant() => age < 3 && !isFruiting;
+}
+
+class CherryTree extends GardenTree {
+  CherryTree(int age, bool isFruiting)
+      : super(TreeIdGenerator.nextId(), age, isFruiting);
+
+  @override
+  void grow() => print('Вишня #$id зростає ');
+
+  @override
+  void produceFruits() =>
+      print(isFruiting ? 'Вишня #$id дала врожай!' : 'Ще не плодоносить');
+
+  @override
+  bool needsTransplant() => age < 2;
+}
+
+class PearTree extends GardenTree {
+  PearTree(int age, bool isFruiting)
+      : super(TreeIdGenerator.nextId(), age, isFruiting);
+
+  @override
+  void grow() => print('Груша #$id зростає ');
+
+  @override
+  void produceFruits() =>
+      print(isFruiting ? 'Груша #$id дала врожай!' : 'Ще не плодоносить');
+
+  @override
+  bool needsTransplant() => age < 4 && !isFruiting;
+}
+
+void main() {
+  var apple = AppleTree(2, false);
+  var cherry = CherryTree(1, false);
+  var pear = PearTree(5, true);
+
+  List<GardenTree> trees = [apple, cherry, pear];
+
+  for (var tree in trees) {
+    tree.grow();
+    tree.produceFruits();
+    tree.water();
+    tree.fertilize();
+    if (tree.needsTransplant()) {
+      print('Дерево #${tree.id} потрібно пересадити ');
+    } else {
+      print('Дерево #${tree.id} не потребує пересадки ');
+    }
+    print('---');
+  }
+}
