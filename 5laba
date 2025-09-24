@@ -1,0 +1,162 @@
+class Day {
+  int _visitors;
+  String _comment;
+
+  Day(this._visitors, this._comment);
+
+  int get visitors => _visitors;
+  String get comment => _comment;
+
+  set visitors(int v) {
+    if (v >= 0) {
+      _visitors = v;
+    }
+  }
+
+  set comment(String c) {
+    _comment = c;
+  }
+
+  @override
+  String toString() => "Відвідувачів: $_visitors, коментар: $_comment";
+}
+
+class Exhibition {
+  String _title;
+  String _artist;
+  List<Day> _days = [];
+
+  Exhibition(this._title, this._artist);
+
+  String get title => _title;
+  String get artist => _artist;
+
+  set title(String t) => _title = t;
+  set artist(String a) => _artist = a;
+
+  void addDay(Day day) {
+    _days.add(day);
+  }
+
+  int totalVisitors() {
+    int sum = 0;
+    for (var day in _days) {
+      sum += day.visitors;
+    }
+    return sum;
+  }
+
+  Day? dayWithFewestVisitors() {
+    if (_days.isEmpty) return null;
+    Day minDay = _days[0];
+    for (var day in _days) {
+      if (day.visitors < minDay.visitors) {
+        minDay = day;
+      }
+    }
+    return minDay;
+  }
+
+  List<String> commentsWithWord(String word) {
+    List<String> result = [];
+    for (var day in _days) {
+      if (day.comment.toLowerCase().contains(word.toLowerCase())) {
+        result.add(day.comment);
+      }
+    }
+    return result;
+  }
+
+  List<Day> get days => _days;
+}
+
+class Storage<T> {
+  List<T> _items = [];
+
+  void add(T item) {
+    _items.add(item);
+  }
+
+  List<T> getAll() => _items;
+
+  T getAt(int index) => _items[index];
+}
+
+T getFirst<T>(List<T> list) {
+  return list.first;
+}
+
+List<T> swap<T>(List<T> list, int i, int j) {
+  var temp = list[i];
+  list[i] = list[j];
+  list[j] = temp;
+  return list;
+}
+
+T getMax<T extends Comparable>(List<T> list) {
+  list.sort();
+  return list.last;
+}
+
+
+Future<T> getFirstAsync<T>(List<T> list) {
+  return Future(() {
+    return getFirst<T>(list);
+  });
+}
+
+Future<List<T>> swapAsync<T>(List<T> list, int i, int j) {
+  return Future(() {
+    return swap<T>(list, i, j);
+  });
+}
+
+Future<T> getMaxAsync<T extends Comparable>(List<T> list) {
+  return Future.value(getMax<T>(list));
+}
+
+
+Future<void> runAsyncDemo(Exhibition exhibition) async {
+  try {
+    print("\n=== Демонстрація Future + async/await ===");
+
+    var first = await getFirstAsync<Day>(exhibition.days);
+    print("Перший день (Future): $first");
+
+    var swapped = await swapAsync<Day>(List.from(exhibition.days), 0, 2);
+    print("Після перестановки 0 і 2 (Future):");
+    for (var d in swapped) {
+      print("- $d");
+    }
+
+    var numbers = [3, 9, 1, 7];
+    var maxNumber = await getMaxAsync<int>(numbers);
+    print("Максимальне число (Future): $maxNumber");
+  } catch (e) {
+    print("Сталася помилка: $e");
+  }
+}
+
+void main() async {
+  Exhibition exhibition = Exhibition("Весняні барви", "Шевченко");
+
+  exhibition.addDay(Day(120, "Було дуже цікаво"));
+  exhibition.addDay(Day(80, "Небагато відвідувачів, але якісна експозиція"));
+  exhibition.addDay(Day(200, "Чудові картини!"));
+
+  print("Виставка: ${exhibition.title}, художник: ${exhibition.artist}");
+  print("Сумарна кількість відвідувачів: ${exhibition.totalVisitors()}");
+
+  Day? minDay = exhibition.dayWithFewestVisitors();
+  if (minDay != null) {
+    print("Найменше відвідувачів: ${minDay.visitors}, коментар: ${minDay.comment}");
+  }
+
+  String searchWord = "цікаво";
+  print("Коментарі зі словом '$searchWord':");
+  for (var comment in exhibition.commentsWithWord(searchWord)) {
+    print("- $comment");
+  }
+
+  await runAsyncDemo(exhibition);
+}
